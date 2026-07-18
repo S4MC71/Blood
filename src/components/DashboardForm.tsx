@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { bangladeshData, bloodGroups } from '@/utils/bangladeshData'
@@ -120,9 +120,19 @@ export default function DashboardForm({
   const districts = division ? Object.keys(bangladeshData[division] || {}) : []
   const upazilas = division && district ? bangladeshData[division][district] || [] : []
 
-  // Dynamic calculations
+  // Dynamic calculations for medical cooldown
   const cooldownStatus = getCooldownStatus(lastDonationDate, gender)
   const totalUserDonations = initialDonationCount + history.length
+
+  // Effective availability status: MUST be false if in cooldown
+  const effectiveIsAvailable = cooldownStatus.isEligible ? isAvailable : false
+
+  // If in cooldown, keep isAvailable state in sync as false
+  useEffect(() => {
+    if (!cooldownStatus.isEligible && isAvailable) {
+      setIsAvailable(false)
+    }
+  }, [cooldownStatus.isEligible, isAvailable])
 
   const handleDivisionChange = (val: string) => {
     setDivision(val)
@@ -152,14 +162,12 @@ export default function DashboardForm({
   // Toggle availability switch
   const handleToggleAvailability = () => {
     setCooldownAlertMsg('')
-    if (!isAvailable) {
-      // Trying to switch to available
-      if (!cooldownStatus.isEligible) {
-        setCooldownAlertMsg(
-          `Medical Restriction: You donated blood on ${lastDonationDate}. For your health, you must complete the ${cooldownStatus.requiredDays}-day cooldown (${cooldownStatus.daysRemaining} days remaining, eligible on ${cooldownStatus.nextEligibleDateStr}).`
-        )
-        return
-      }
+    if (!cooldownStatus.isEligible) {
+      // Trying to switch to available while in cooldown
+      setCooldownAlertMsg(
+        `Medical Restriction: You donated blood on ${lastDonationDate}. For your health, you must complete the ${cooldownStatus.requiredDays}-day cooldown (${cooldownStatus.daysRemaining} days remaining, eligible on ${cooldownStatus.nextEligibleDateStr}).`
+      )
+      return
     }
     setIsAvailable(!isAvailable)
   }
@@ -176,7 +184,7 @@ export default function DashboardForm({
     setInitialDonationCount(validCount)
     setPendingBaselineInput(validCount.toString())
     setIsModalOpen(false)
-    setSuccessMsg('Baseline past donation count updated. Don\'t forget to click "Save Information" below.')
+    setSuccessMsg('Baseline past donation count updated. Click "Save Information" below to persist.')
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -186,12 +194,8 @@ export default function DashboardForm({
     setSuccessMsg('')
     setCooldownAlertMsg('')
 
-    // Auto check availability compliance
-    let finalAvailability = isAvailable
-    if (!cooldownStatus.isEligible) {
-      finalAvailability = false
-      setIsAvailable(false)
-    }
+    // Strict check: if in cooldown, force is_available = false
+    const finalAvailability = cooldownStatus.isEligible ? isAvailable : false
 
     try {
       const { error } = await supabase
@@ -227,7 +231,7 @@ export default function DashboardForm({
       {/* Total Donation Badge & Summary Widget */}
       <div className="rounded-3xl border border-red-200/60 bg-gradient-to-r from-red-600 to-rose-600 p-5 text-white shadow-lg relative overflow-hidden">
         <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
-        
+
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 text-center sm:text-left">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/20 shadow-inner">
@@ -240,7 +244,7 @@ export default function DashboardForm({
               <div className="text-3xl font-extrabold leading-none mt-0.5">
                 {totalUserDonations}{' '}
                 <span className="text-sm font-semibold text-red-100">
-                  {totalUserDonations === 1 ? 'Times' : 'Times'}
+                  {totalUserDonations === 1 ? 'Time' : 'Times'}
                 </span>
               </div>
               <p className="text-xs text-red-100/90 mt-1">
@@ -282,7 +286,20 @@ export default function DashboardForm({
           </div>
         )}
 
-        {cooldownAlertMsg && (
+        {/* ALWAYS show medical restriction alert whenever donor is in cooldown */}
+        {!cooldownStatus.isEligible && (
+          <div className="flex items-start gap-2.5 rounded-2xl border border-amber-300/80 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/40 p-4 text-xs font-medium text-amber-800 dark:text-amber-300 shadow-sm">
+            <ShieldAlert className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+            <div>
+              <strong>Medical Restriction Active:</strong> You donated blood on{' '}
+              <strong>{lastDonationDate}</strong>. For your health and physical recovery, you must complete the{' '}
+              {cooldownStatus.requiredDays}-day cooldown ({cooldownStatus.daysRemaining} days remaining, eligible on{' '}
+              <strong>{cooldownStatus.nextEligibleDateStr}</strong>).
+            </div>
+          </div>
+        )}
+
+        {cooldownAlertMsg && cooldownStatus.isEligible && (
           <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
             <ShieldAlert className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
             <div>{cooldownAlertMsg}</div>
@@ -295,7 +312,7 @@ export default function DashboardForm({
             <div>
               <p className="text-base font-bold text-zinc-900 dark:text-white">Donation Status</p>
               <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">
-                {isAvailable
+                {effectiveIsAvailable
                   ? 'You are ready to donate blood'
                   : !cooldownStatus.isEligible
                   ? `Unavailable (In Cooldown — eligible in ${cooldownStatus.daysRemaining} days)`
@@ -306,14 +323,14 @@ export default function DashboardForm({
               type="button"
               onClick={handleToggleAvailability}
               className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors cursor-pointer focus:outline-none ${
-                isAvailable ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'
+                effectiveIsAvailable ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'
               }`}
               role="switch"
-              aria-checked={isAvailable}
+              aria-checked={effectiveIsAvailable}
             >
               <span
                 className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
-                  isAvailable ? 'translate-x-6' : 'translate-x-1'
+                  effectiveIsAvailable ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
             </button>
