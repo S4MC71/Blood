@@ -6,12 +6,8 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { Heart, Mail, Lock, Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react'
 
-const inputBase =
-  'block w-full h-12 rounded-xl border bg-white/80 px-4 text-sm font-medium transition-all placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-800/80 dark:placeholder:text-zinc-500'
-
 const inputClass =
-  inputBase +
-  ' border-zinc-200 text-zinc-900 focus:border-red-500 focus:ring-red-100 dark:border-zinc-700 dark:text-white dark:focus:border-red-500 dark:focus:ring-red-900/30'
+  'block w-full h-12 rounded-xl border border-zinc-200 bg-white/80 px-4 text-sm font-medium text-zinc-900 focus:border-red-500 focus:bg-white focus:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-white dark:focus:border-red-500 dark:focus:bg-zinc-800 dark:focus:text-white dark:focus:ring-red-900/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-500'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -57,21 +53,18 @@ export default function LoginPage() {
 
       <div className="flex-1 flex items-start justify-center px-4 pb-12">
         <div className="w-full max-w-sm">
-          {/* Card */}
           <div className="rounded-3xl bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border border-zinc-200/60 dark:border-zinc-800/60 shadow-xl p-6 sm:p-8">
             <div className="mb-6 text-center">
               <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">Welcome back</h1>
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Sign in to your donor account</p>
             </div>
 
-            {/* Error */}
             {errorMsg && (
               <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
                 {errorMsg}
               </div>
             )}
 
-            {/* Success */}
             {success && (
               <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-emerald-400 flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 shrink-0" />
@@ -99,9 +92,17 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
-                  Password
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                    Password
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
                   <input

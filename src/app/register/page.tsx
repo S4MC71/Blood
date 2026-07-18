@@ -141,8 +141,8 @@ export default function RegisterPage() {
                 {success
                   ? 'Your account has been created.'
                   : step === 1
-                  ? 'Step 1 of 2 — Personal info & location'
-                  : 'Step 2 of 2 — Create your account'}
+                    ? 'Step 1 of 2 — Personal info & location'
+                    : 'Step 2 of 2 — Create your account'}
               </p>
             </div>
 

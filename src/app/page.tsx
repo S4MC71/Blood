@@ -15,11 +15,10 @@ interface PageProps {
 }
 
 function BloodGroupBadge({ group }: { group: string }) {
-  const shortGroup = group.length > 3 ? group.replace('+', '⁺').replace('-', '⁻') : group
   return (
     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/40">
       <span className="text-xs font-extrabold leading-none text-red-600 dark:text-red-400">
-        {shortGroup}
+        {group}
       </span>
     </div>
   )
@@ -82,12 +81,8 @@ export default async function Home({ searchParams }: PageProps) {
     const { data: allProfiles } = await supabase.from('profiles').select('*')
     const { data: allHistory } = await supabase.from('donation_history').select('user_id')
 
-    const historyCountMap: Record<string, number> = {}
     if (allHistory) {
       totalCommunityDonations = allHistory.length
-      allHistory.forEach((item) => {
-        historyCountMap[item.user_id] = (historyCountMap[item.user_id] || 0) + 1
-      })
     }
 
     if (allProfiles) {
@@ -118,14 +113,12 @@ export default async function Home({ searchParams }: PageProps) {
 
   return (
     <div className="flex-1 w-full max-w-full overflow-x-hidden">
-      {/* ── Hero / Search Section ── */}
+      {/* Hero / Search Section */}
       <div className="bg-white/70 dark:bg-zinc-900/70 backdrop-blur-2xl border-b border-red-100/60 dark:border-zinc-800 shadow-sm">
         <div className="mx-auto max-w-5xl px-4 pt-6 pb-7 sm:pt-10 sm:pb-10 relative overflow-hidden">
-          {/* Decorative blobs */}
           <div className="absolute -top-20 -right-20 h-56 w-56 rounded-full bg-red-400/15 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-rose-400/15 blur-3xl pointer-events-none" />
 
-          {/* Brand label */}
           <div className="relative z-10 flex items-center gap-2 mb-3">
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-tr from-red-600 to-rose-500 shadow-md shadow-red-500/30">
               <Heart className="h-3.5 w-3.5 fill-white text-white" />
@@ -135,7 +128,6 @@ export default async function Home({ searchParams }: PageProps) {
             </span>
           </div>
 
-          {/* Headline */}
           <div className="relative z-10">
             <h1 className="text-[1.7rem] leading-tight font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-4xl lg:text-5xl">
               Find a Blood Donor
@@ -145,7 +137,6 @@ export default async function Home({ searchParams }: PageProps) {
             </p>
           </div>
 
-          {/* Search */}
           <div className="mt-5 sm:mt-6">
             <Suspense fallback={
               <div className="h-[140px] w-full animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />
@@ -154,7 +145,6 @@ export default async function Home({ searchParams }: PageProps) {
             </Suspense>
           </div>
 
-          {/* Community Stats — always 1 col on mobile, 3 on sm+ */}
           <div className="mt-5 sm:mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <StatCard
               accent
@@ -176,9 +166,8 @@ export default async function Home({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* ── Results Section ── */}
+      {/* Results Section */}
       <div className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
-        {/* Header row */}
         <div className="flex flex-wrap items-center gap-2 mb-5">
           <h2 className="text-base font-bold text-zinc-900 dark:text-white sm:text-lg">
             {isFiltered ? 'Search Results' : 'All Donors'}
@@ -211,40 +200,32 @@ export default async function Home({ searchParams }: PageProps) {
             {donors.map((donor) => {
               const cooldown = getCooldownStatus(donor.last_donation_date, donor.gender)
               const canCall = donor.is_available && cooldown.isEligible
-              const donorTotal = (donor.initial_donation_count || 0) + (donor.history_count || 0)
 
               return (
                 <div
                   key={donor.id}
                   className="flex flex-col rounded-2xl border border-zinc-200/60 bg-white/90 dark:border-zinc-800/60 dark:bg-zinc-900/90 backdrop-blur-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-red-200/80 dark:hover:border-red-900/50 transition-all duration-300"
                 >
-                  {/* Card header */}
                   <div className="p-3.5 sm:p-4 flex items-start gap-3">
                     <BloodGroupBadge group={donor.blood_group} />
-
                     <div className="flex-1 min-w-0">
-                      {/* Name + badge row — flex with wrapping to prevent overflow */}
                       <div className="flex items-start justify-between gap-1.5">
                         <h3 className="text-sm font-bold text-zinc-900 dark:text-white leading-snug line-clamp-1">
                           {donor.full_name}
                         </h3>
-                        {donorTotal > 0 && (
+                        {donor.initial_donation_count > 0 && (
                           <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/40 px-1.5 py-0.5 text-[10px] font-extrabold text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 whitespace-nowrap">
                             <Award className="h-2.5 w-2.5" />
-                            {donorTotal}×
+                            {donor.initial_donation_count}×
                           </span>
                         )}
                       </div>
-
-                      {/* Status dot */}
                       <div className="flex items-center gap-1.5 mt-1">
                         <span className={`inline-block h-2 w-2 rounded-full shrink-0 ${canCall ? 'bg-emerald-500 pulse-dot' : 'bg-zinc-300 dark:bg-zinc-600'}`} />
                         <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
                           {canCall ? 'Ready to donate' : 'Unavailable'}
                         </span>
                       </div>
-
-                      {/* Location */}
                       <div className="flex items-center gap-1 mt-1">
                         <MapPin className="h-3 w-3 shrink-0 text-zinc-400" />
                         <span className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
@@ -254,7 +235,6 @@ export default async function Home({ searchParams }: PageProps) {
                     </div>
                   </div>
 
-                  {/* Donation info bar */}
                   <div className="border-t border-zinc-100/60 dark:border-zinc-800/60 px-3.5 py-2 bg-zinc-50/70 dark:bg-zinc-800/30 flex items-center gap-1.5">
                     {cooldown.daysSince === null ? (
                       <>
@@ -284,7 +264,6 @@ export default async function Home({ searchParams }: PageProps) {
                     )}
                   </div>
 
-                  {/* Call Button */}
                   <div className="p-3">
                     <a
                       href={canCall ? `tel:${donor.phone}` : undefined}
@@ -306,7 +285,6 @@ export default async function Home({ searchParams }: PageProps) {
           </div>
         )}
 
-        {/* CTA Banner */}
         {donors.length > 0 && (
           <div className="mt-8 sm:mt-12 rounded-2xl border border-red-200/50 bg-gradient-to-br from-red-50 to-white dark:border-red-900/30 dark:from-red-950/20 dark:to-zinc-900/50 p-5 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
             <div className="text-center sm:text-left">
