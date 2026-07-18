@@ -22,7 +22,10 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 }
 
 function SelectField({
-  value, onChange, disabled = false, children,
+  value,
+  onChange,
+  disabled = false,
+  children,
 }: {
   value: string
   onChange: (v: string) => void
@@ -50,6 +53,7 @@ export default function RegisterPage() {
 
   const [fullName, setFullName] = useState('')
   const [bloodGroup, setBloodGroup] = useState('')
+  const [gender, setGender] = useState('male')
   const [phone, setPhone] = useState('')
   const [division, setDivision] = useState('')
   const [district, setDistrict] = useState('')
@@ -67,12 +71,19 @@ export default function RegisterPage() {
   const districts = division ? Object.keys(bangladeshData[division] || {}) : []
   const upazilas = division && district ? bangladeshData[division][district] || [] : []
 
-  const handleDivisionChange = (val: string) => { setDivision(val); setDistrict(''); setUpazila('') }
-  const handleDistrictChange = (val: string) => { setDistrict(val); setUpazila('') }
+  const handleDivisionChange = (val: string) => {
+    setDivision(val)
+    setDistrict('')
+    setUpazila('')
+  }
+  const handleDistrictChange = (val: string) => {
+    setDistrict(val)
+    setUpazila('')
+  }
 
   const handleStep1Next = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!bloodGroup || !division || !district || !upazila) {
+    if (!fullName || !bloodGroup || !gender || !phone || !division || !district || !upazila) {
       setErrorMsg('Please fill all fields.')
       return
     }
@@ -91,7 +102,15 @@ export default function RegisterPage() {
         email,
         password,
         options: {
-          data: { full_name: fullName, blood_group: bloodGroup, phone, division, district, upazila },
+          data: {
+            full_name: fullName,
+            blood_group: bloodGroup,
+            gender,
+            phone,
+            division,
+            district,
+            upazila,
+          },
         },
       })
 
@@ -99,7 +118,10 @@ export default function RegisterPage() {
 
       if (data?.session) {
         setSuccessMsg('Registration successful! Redirecting to dashboard...')
-        setTimeout(() => { router.push('/dashboard'); router.refresh() }, 1500)
+        setTimeout(() => {
+          router.push('/dashboard')
+          router.refresh()
+        }, 1500)
       } else {
         setSuccessMsg('Registration successful! Please confirm your email.')
         setLoading(false)
@@ -123,16 +145,26 @@ export default function RegisterPage() {
         <div className="w-full max-w-md rounded-3xl bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 shadow-xl shadow-zinc-200/20 dark:shadow-black/40 p-6 sm:p-8">
           {/* Header */}
           <div className="mb-5 text-center">
-            <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">Become a Donor</h1>
+            <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">
+              Become a Donor
+            </h1>
             <p className="mt-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-              {step === 1 ? 'Enter your info and area' : 'Enter account details'}
+              {step === 1 ? 'Enter your personal info & location' : 'Create account details'}
             </p>
           </div>
 
           {/* Step indicator */}
           <div className="flex items-center gap-2 mb-6">
-            <div className={`flex-1 h-1 rounded-full transition-all ${step >= 1 ? 'bg-red-600' : 'bg-zinc-200 dark:bg-zinc-700'}`} />
-            <div className={`flex-1 h-1 rounded-full transition-all ${step >= 2 ? 'bg-red-600' : 'bg-zinc-200 dark:bg-zinc-700'}`} />
+            <div
+              className={`flex-1 h-1 rounded-full transition-all ${
+                step >= 1 ? 'bg-red-600' : 'bg-zinc-200 dark:bg-zinc-700'
+              }`}
+            />
+            <div
+              className={`flex-1 h-1 rounded-full transition-all ${
+                step >= 2 ? 'bg-red-600' : 'bg-zinc-200 dark:bg-zinc-700'
+              }`}
+            />
           </div>
 
           {errorMsg && (
@@ -147,7 +179,7 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* STEP 1: Donor Info */}
+          {/* STEP 1: Donor Personal & Location Info */}
           {step === 1 && (
             <form onSubmit={handleStep1Next} className="space-y-4">
               <div>
@@ -170,22 +202,34 @@ export default function RegisterPage() {
                   <FieldLabel>Blood Group</FieldLabel>
                   <SelectField value={bloodGroup} onChange={setBloodGroup}>
                     <option value="">Select</option>
-                    {bloodGroups.map((g) => <option key={g} value={g}>{g}</option>)}
+                    {bloodGroups.map((g) => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
                   </SelectField>
                 </div>
                 <div>
-                  <FieldLabel>Mobile Number</FieldLabel>
-                  <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
-                    <input
-                      type="tel"
-                      required
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="017XXXXXXXX"
-                      className={`${inputClass} pl-10`}
-                    />
-                  </div>
+                  <FieldLabel>Gender (For Medical Rules)</FieldLabel>
+                  <SelectField value={gender} onChange={setGender}>
+                    <option value="male">Male (90-day cooldown)</option>
+                    <option value="female">Female (120-day cooldown)</option>
+                  </SelectField>
+                </div>
+              </div>
+
+              <div>
+                <FieldLabel>Mobile Number</FieldLabel>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="017XXXXXXXX"
+                    className={`${inputClass} pl-10`}
+                  />
                 </div>
               </div>
 
@@ -193,23 +237,39 @@ export default function RegisterPage() {
                 <FieldLabel>Division</FieldLabel>
                 <SelectField value={division} onChange={handleDivisionChange}>
                   <option value="">Select</option>
-                  {divisions.map((d) => <option key={d} value={d}>{d}</option>)}
+                  {divisions.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
                 </SelectField>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <FieldLabel>District</FieldLabel>
-                  <SelectField value={district} onChange={handleDistrictChange} disabled={!division}>
+                  <SelectField
+                    value={district}
+                    onChange={handleDistrictChange}
+                    disabled={!division}
+                  >
                     <option value="">Select</option>
-                    {districts.map((d) => <option key={d} value={d}>{d}</option>)}
+                    {districts.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
                   </SelectField>
                 </div>
                 <div>
                   <FieldLabel>Upazila</FieldLabel>
                   <SelectField value={upazila} onChange={setUpazila} disabled={!district}>
                     <option value="">Select</option>
-                    {upazilas.map((u) => <option key={u} value={u}>{u}</option>)}
+                    {upazilas.map((u) => (
+                      <option key={u} value={u}>
+                        {u}
+                      </option>
+                    ))}
                   </SelectField>
                 </div>
               </div>
@@ -278,9 +338,11 @@ export default function RegisterPage() {
                   className="flex flex-1 h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-sm font-bold text-white shadow-md hover:shadow-lg hover:from-red-700 hover:to-red-600 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 transition-all cursor-pointer"
                 >
                   {loading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Please wait...</>
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Registering...
+                    </>
                   ) : (
-                    'Register'
+                    'Register as Donor'
                   )}
                 </button>
               </div>
@@ -288,8 +350,11 @@ export default function RegisterPage() {
           )}
 
           <p className="mt-8 text-center text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Already have an account?{' '}
-            <Link href="/login" className="font-bold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">
+            Already registered?{' '}
+            <Link
+              href="/login"
+              className="font-bold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+            >
               Login
             </Link>
           </p>

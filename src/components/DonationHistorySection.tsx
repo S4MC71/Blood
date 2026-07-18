@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { getCooldownStatus } from '@/utils/donationUtils'
 import { Calendar, Plus, Trash2, Loader2, Hospital, History, CheckCircle2 } from 'lucide-react'
 
 export interface DonationRecord {
@@ -13,6 +14,7 @@ export interface DonationRecord {
 
 interface DonationHistorySectionProps {
   userId: string
+  gender: string
   initialHistory: DonationRecord[]
   onHistoryChange: (updatedHistory: DonationRecord[]) => void
 }
@@ -22,6 +24,7 @@ const inputClass =
 
 export default function DonationHistorySection({
   userId,
+  gender,
   initialHistory,
   onHistoryChange,
 }: DonationHistorySectionProps) {
@@ -43,6 +46,7 @@ export default function DonationHistorySection({
     setMsg(null)
 
     try {
+      // 1. Insert record into Supabase donation_history
       const { data, error } = await supabase
         .from('donation_history')
         .insert({
@@ -59,13 +63,26 @@ export default function DonationHistorySection({
         (a, b) => new Date(b.donation_date).getTime() - new Date(a.donation_date).getTime()
       )
 
+      // 2. Automatically sync latest donation date & availability status in profiles table
+      const latestDate = updated[0]?.donation_date || null
+      const status = getCooldownStatus(latestDate, gender)
+
+      await supabase
+        .from('profiles')
+        .update({
+          last_donation_date: latestDate,
+          is_available: status.isEligible,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userId)
+
       setHistory(updated)
       onHistoryChange(updated)
       setNewDate('')
       setNewNote('')
-      setMsg({ type: 'success', text: 'Donation record added successfully!' })
+      setMsg({ type: 'success', text: 'Donation history record saved to Supabase!' })
     } catch (err: any) {
-      setMsg({ type: 'error', text: 'Failed to add donation record.' })
+      setMsg({ type: 'error', text: err.message || 'Failed to save donation record in Supabase.' })
     } finally {
       setAdding(false)
     }
@@ -77,13 +94,26 @@ export default function DonationHistorySection({
 
     try {
       const { error } = await supabase.from('donation_history').delete().eq('id', id)
-
       if (error) throw error
 
       const updated = history.filter((item) => item.id !== id)
+
+      // Update profiles last_donation_date to next latest if deleted item was latest
+      const latestDate = updated[0]?.donation_date || null
+      const status = getCooldownStatus(latestDate, gender)
+
+      await supabase
+        .from('profiles')
+        .update({
+          last_donation_date: latestDate,
+          is_available: status.isEligible,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userId)
+
       setHistory(updated)
       onHistoryChange(updated)
-      setMsg({ type: 'success', text: 'Donation record removed.' })
+      setMsg({ type: 'success', text: 'Donation record removed from Supabase.' })
     } catch (err: any) {
       setMsg({ type: 'error', text: 'Failed to remove record.' })
     } finally {
@@ -100,10 +130,10 @@ export default function DonationHistorySection({
           </div>
           <div>
             <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
-              Donation History Log
+              Donation History Log & Timeline
             </h3>
             <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              Record dates of blood donations made through or during Roktodan.online
+              Saved dates of blood donations on Roktodan.online
             </p>
           </div>
         </div>
@@ -183,7 +213,7 @@ export default function DonationHistorySection({
       {/* History Records List */}
       {history.length === 0 ? (
         <div className="py-6 text-center text-xs font-medium text-zinc-400 dark:text-zinc-500 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
-          No platform donations logged yet. Use the form above to record your latest donation date!
+          No donation records logged yet. Use the form above to record your blood donation date!
         </div>
       ) : (
         <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
