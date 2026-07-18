@@ -43,14 +43,14 @@ interface DashboardFormProps {
 }
 
 const inputClass =
-  'block w-full h-12 rounded-xl border border-zinc-200 bg-white/80 px-4 text-sm font-medium text-zinc-900 focus:border-red-500 focus:bg-white focus:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-white dark:focus:border-red-500 dark:focus:bg-zinc-800 dark:focus:text-white dark:focus:ring-red-900/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-500'
+  'block w-full h-11 sm:h-12 rounded-xl border border-zinc-200 bg-white/80 px-3.5 sm:px-4 text-xs sm:text-sm font-medium text-zinc-900 focus:border-red-500 focus:bg-white focus:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-white dark:focus:border-red-500 dark:focus:bg-zinc-800 dark:focus:text-white dark:focus:ring-red-900/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-500'
 
 const selectClass =
-  'block w-full h-12 appearance-none rounded-xl border border-zinc-200 bg-white/80 px-4 text-sm font-medium text-zinc-900 focus:border-red-500 focus:bg-white focus:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-white dark:focus:border-red-500 dark:focus:bg-zinc-800 dark:focus:text-white dark:focus:ring-red-900/30 disabled:opacity-40 transition-all cursor-pointer'
+  'block w-full h-11 sm:h-12 appearance-none rounded-xl border border-zinc-200 bg-white/80 px-3.5 sm:px-4 text-xs sm:text-sm font-medium text-zinc-900 focus:border-red-500 focus:bg-white focus:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-white dark:focus:border-red-500 dark:focus:bg-zinc-800 dark:focus:text-white dark:focus:ring-red-900/30 disabled:opacity-40 transition-all cursor-pointer'
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+    <label className="block text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1 sm:mb-1.5">
       {children}
     </label>
   )
@@ -279,34 +279,34 @@ export default function DashboardForm({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Total Donation Badge & Summary Banner */}
-      <div className="rounded-3xl border border-red-200/60 bg-gradient-to-r from-red-600 to-rose-600 p-5 text-white shadow-lg relative overflow-hidden">
+      <div className="rounded-3xl border border-red-200/60 bg-gradient-to-r from-red-600 to-rose-600 p-4 sm:p-5 text-white shadow-lg relative overflow-hidden">
         <div className="absolute -right-6 -bottom-6 h-28 w-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3 text-center sm:text-left">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/20 shadow-inner">
-              <Award className="h-7 w-7 text-white" />
+            <div className="flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/20 shadow-inner">
+              <Award className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
             </div>
             <div>
               <span className="text-[10px] font-extrabold uppercase tracking-widest text-red-100">
                 Your Total Blood Donations
               </span>
-              <div className="text-3xl font-extrabold leading-none mt-0.5">
+              <div className="text-2xl sm:text-3xl font-extrabold leading-none mt-0.5">
                 {totalUserDonations}{' '}
-                <span className="text-sm font-semibold text-red-100">
+                <span className="text-xs sm:text-sm font-semibold text-red-100">
                   {totalUserDonations === 1 ? 'Time' : 'Times'}
                 </span>
               </div>
-              <p className="text-xs text-red-100/90 mt-1">
+              <p className="text-[11px] sm:text-xs text-red-100/90 mt-1">
                 ({initialDonationCount} Baseline Offline + {history.length} Platform Logged)
               </p>
             </div>
           </div>
 
-          <div className="rounded-2xl bg-black/20 backdrop-blur-md px-4 py-2.5 border border-white/10 text-center sm:text-right">
-            <div className="text-[10px] font-bold text-red-100 uppercase tracking-wider">
+          <div className="w-full sm:w-auto rounded-2xl bg-black/20 backdrop-blur-md px-3.5 py-2 sm:px-4 sm:py-2.5 border border-white/10 text-center sm:text-right shrink-0">
+            <div className="text-[9px] sm:text-[10px] font-bold text-red-100 uppercase tracking-wider">
               Medical Cooldown
             </div>
             <div className="text-xs font-bold mt-0.5">
@@ -324,44 +324,44 @@ export default function DashboardForm({
         </div>
       </div>
 
-      {/* Navigation Tabs (Separates Status/History from Info Settings) */}
-      <div className="flex rounded-2xl bg-zinc-200/60 dark:bg-zinc-800/60 p-1.5 backdrop-blur-xl">
+      {/* Navigation Tabs */}
+      <div className="flex rounded-2xl bg-zinc-200/70 dark:bg-zinc-800/70 p-1.5 backdrop-blur-xl">
         <button
           type="button"
           onClick={() => setActiveTab('tracker')}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold transition-all cursor-pointer ${
+          className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer truncate ${
             activeTab === 'tracker'
               ? 'bg-white text-zinc-900 shadow-md dark:bg-zinc-900 dark:text-white'
               : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'
           }`}
         >
-          <Activity className="h-4 w-4 text-red-500" />
-          Status & History Log
+          <Activity className="h-3.5 w-3.5 shrink-0 text-red-500" />
+          <span className="truncate">Status & History</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('profile')}
-          className={`flex-1 flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold transition-all cursor-pointer ${
+          className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer truncate ${
             activeTab === 'profile'
               ? 'bg-white text-zinc-900 shadow-md dark:bg-zinc-900 dark:text-white'
               : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'
           }`}
         >
-          <Settings className="h-4 w-4 text-zinc-500" />
-          Personal & Location Info
+          <Settings className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
+          <span className="truncate">Profile & Location</span>
         </button>
       </div>
 
       {/* Global Alerts */}
       {errorMsg && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs sm:text-sm font-medium text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
           {errorMsg}
         </div>
       )}
 
       {successMsg && (
-        <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-emerald-400">
-          <CheckCircle className="h-4 w-4 shrink-0" />
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs sm:text-sm font-medium text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-emerald-400">
+          <CheckCircle className="h-4 w-4 shrink-0 text-emerald-500" />
           {successMsg}
         </div>
       )}
@@ -371,7 +371,7 @@ export default function DashboardForm({
         <div className="space-y-4">
           {/* Medical Restriction Banner */}
           {!cooldownStatus.isEligible && (
-            <div className="flex items-start gap-2.5 rounded-2xl border border-amber-300/80 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/40 p-4 text-xs font-medium text-amber-800 dark:text-amber-300 shadow-sm">
+            <div className="flex items-start gap-2.5 rounded-2xl border border-amber-300/80 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/40 p-3.5 sm:p-4 text-xs font-medium text-amber-800 dark:text-amber-300 shadow-xs">
               <ShieldAlert className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
               <div>
                 <strong>Medical Restriction Active:</strong> You donated blood on{' '}
@@ -390,14 +390,14 @@ export default function DashboardForm({
           )}
 
           {/* Instant Availability Switch card */}
-          <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-sm hover:shadow-md transition-shadow p-5">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+          <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-xs hover:shadow-md transition-shadow p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                   Donation Status
                   {togglingAvailability && <Loader2 className="h-3.5 w-3.5 animate-spin text-red-500" />}
                 </p>
-                <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">
+                <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
                   {effectiveIsAvailable
                     ? 'You are ready to donate blood (Instantly updated)'
                     : !cooldownStatus.isEligible
@@ -409,7 +409,7 @@ export default function DashboardForm({
                 type="button"
                 disabled={togglingAvailability}
                 onClick={handleToggleAvailability}
-                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors cursor-pointer focus:outline-none disabled:opacity-50 ${
+                className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors cursor-pointer focus:outline-none disabled:opacity-50 ${
                   effectiveIsAvailable ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'
                 }`}
                 role="switch"
@@ -425,22 +425,22 @@ export default function DashboardForm({
           </div>
 
           {/* Baseline Donation Count Card */}
-          <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-sm p-5 space-y-3">
+          <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-xs p-4 sm:p-5 space-y-3">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400">
                 <Heart className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
+                <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
                   Baseline Past Donations (Offline)
                 </h3>
-                <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                <p className="text-[11px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">
                   How many times did you donate blood before joining Roktodan.online?
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 pt-1">
+            <div className="flex items-center gap-2.5 pt-1">
               <div className="relative flex-1">
                 <input
                   type="number"
@@ -455,7 +455,7 @@ export default function DashboardForm({
               <button
                 type="button"
                 onClick={handleOpenBaselineModal}
-                className="h-12 px-4 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-bold shadow-sm hover:bg-zinc-800 dark:hover:bg-white transition-all cursor-pointer shrink-0"
+                className="h-11 sm:h-12 px-3.5 sm:px-4 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-bold shadow-xs hover:bg-zinc-800 dark:hover:bg-white transition-all cursor-pointer shrink-0"
               >
                 Set Count
               </button>
@@ -478,7 +478,7 @@ export default function DashboardForm({
       {/* TAB 2: Personal & Location Information Settings */}
       {activeTab === 'profile' && (
         <form onSubmit={handleSaveProfile} className="space-y-4">
-          <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-sm p-5 space-y-4">
+          <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-xs p-4 sm:p-5 space-y-3.5 sm:space-y-4">
             <h3 className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Personal & Health Information
             </h3>
@@ -497,7 +497,7 @@ export default function DashboardForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               <div>
                 <FieldLabel>Blood Group</FieldLabel>
                 <SelectField value={bloodGroup} onChange={setBloodGroup}>
@@ -509,15 +509,15 @@ export default function DashboardForm({
                 </SelectField>
               </div>
               <div>
-                <FieldLabel>Gender (Medical Cooldown)</FieldLabel>
+                <FieldLabel>Gender</FieldLabel>
                 <SelectField value={gender} onChange={setGender}>
-                  <option value="male">Male (90-day cooldown)</option>
-                  <option value="female">Female (120-day cooldown)</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
                 </SelectField>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               <div>
                 <FieldLabel>Mobile</FieldLabel>
                 <div className="relative">
@@ -548,7 +548,7 @@ export default function DashboardForm({
           </div>
 
           {/* Location */}
-          <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-sm p-5 space-y-4">
+          <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-xs p-4 sm:p-5 space-y-3.5 sm:space-y-4">
             <h3 className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Location
             </h3>
@@ -565,7 +565,7 @@ export default function DashboardForm({
               </SelectField>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               <div>
                 <FieldLabel>District</FieldLabel>
                 <SelectField
@@ -599,7 +599,7 @@ export default function DashboardForm({
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-sm font-bold text-white shadow-md hover:shadow-lg hover:from-red-700 hover:to-red-600 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 transition-all cursor-pointer mt-6"
+            className="flex w-full h-11 sm:h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-xs sm:text-sm font-bold text-white shadow-md hover:shadow-lg hover:from-red-700 hover:to-red-600 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 transition-all cursor-pointer mt-4 sm:mt-6"
           >
             {loading ? (
               <>

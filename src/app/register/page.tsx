@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { bangladeshData, bloodGroups } from '@/utils/bangladeshData'
-import { Heart, User, Mail, Lock, Phone, Loader2, Eye, EyeOff, ChevronDown } from 'lucide-react'
+import { Heart, User, Mail, Lock, Phone, Loader2, Eye, EyeOff, ChevronDown, Calendar } from 'lucide-react'
 
 const inputClass =
   'block w-full h-12 rounded-xl border border-zinc-200 bg-white/80 px-4 text-sm font-medium text-zinc-900 focus:border-red-500 focus:bg-white focus:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-red-100 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-white dark:focus:border-red-500 dark:focus:bg-zinc-800 dark:focus:text-white dark:focus:ring-red-900/30 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-500'
@@ -55,6 +55,7 @@ export default function RegisterPage() {
   const [bloodGroup, setBloodGroup] = useState('')
   const [gender, setGender] = useState('male')
   const [phone, setPhone] = useState('')
+  const [lastDonationDate, setLastDonationDate] = useState('')
   const [division, setDivision] = useState('')
   const [district, setDistrict] = useState('')
   const [upazila, setUpazila] = useState('')
@@ -84,7 +85,7 @@ export default function RegisterPage() {
   const handleStep1Next = (e: React.FormEvent) => {
     e.preventDefault()
     if (!fullName || !bloodGroup || !gender || !phone || !division || !district || !upazila) {
-      setErrorMsg('Please fill all fields.')
+      setErrorMsg('Please fill all required fields.')
       return
     }
     setErrorMsg('')
@@ -107,6 +108,7 @@ export default function RegisterPage() {
             blood_group: bloodGroup,
             gender,
             phone,
+            last_donation_date: lastDonationDate || null,
             division,
             district,
             upazila,
@@ -183,7 +185,7 @@ export default function RegisterPage() {
           {step === 1 && (
             <form onSubmit={handleStep1Next} className="space-y-4">
               <div>
-                <FieldLabel>Full Name</FieldLabel>
+                <FieldLabel>Full Name *</FieldLabel>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
                   <input
@@ -199,7 +201,7 @@ export default function RegisterPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <FieldLabel>Blood Group</FieldLabel>
+                  <FieldLabel>Blood Group *</FieldLabel>
                   <SelectField value={bloodGroup} onChange={setBloodGroup}>
                     <option value="">Select</option>
                     {bloodGroups.map((g) => (
@@ -210,31 +212,46 @@ export default function RegisterPage() {
                   </SelectField>
                 </div>
                 <div>
-                  <FieldLabel>Gender (For Medical Rules)</FieldLabel>
+                  <FieldLabel>Gender *</FieldLabel>
                   <SelectField value={gender} onChange={setGender}>
-                    <option value="male">Male (90-day cooldown)</option>
-                    <option value="female">Female (120-day cooldown)</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
                   </SelectField>
                 </div>
               </div>
 
-              <div>
-                <FieldLabel>Mobile Number</FieldLabel>
-                <div className="relative">
-                  <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="017XXXXXXXX"
-                    className={`${inputClass} pl-10`}
-                  />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <FieldLabel>Mobile Number *</FieldLabel>
+                  <div className="relative">
+                    <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                    <input
+                      type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="017XXXXXXXX"
+                      className={`${inputClass} pl-10`}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <FieldLabel>Last Donation Date</FieldLabel>
+                  <div className="relative">
+                    <Calendar className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                    <input
+                      type="date"
+                      value={lastDonationDate}
+                      onChange={(e) => setLastDonationDate(e.target.value)}
+                      max={new Date().toISOString().split('T')[0]}
+                      className={`${inputClass} pl-10`}
+                    />
+                  </div>
                 </div>
               </div>
 
               <div>
-                <FieldLabel>Division</FieldLabel>
+                <FieldLabel>Division *</FieldLabel>
                 <SelectField value={division} onChange={handleDivisionChange}>
                   <option value="">Select</option>
                   {divisions.map((d) => (
@@ -247,7 +264,7 @@ export default function RegisterPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <FieldLabel>District</FieldLabel>
+                  <FieldLabel>District *</FieldLabel>
                   <SelectField
                     value={district}
                     onChange={handleDistrictChange}
@@ -262,7 +279,7 @@ export default function RegisterPage() {
                   </SelectField>
                 </div>
                 <div>
-                  <FieldLabel>Upazila</FieldLabel>
+                  <FieldLabel>Upazila *</FieldLabel>
                   <SelectField value={upazila} onChange={setUpazila} disabled={!district}>
                     <option value="">Select</option>
                     {upazilas.map((u) => (
@@ -287,7 +304,7 @@ export default function RegisterPage() {
           {step === 2 && (
             <form onSubmit={handleRegister} className="space-y-4">
               <div>
-                <FieldLabel>Email</FieldLabel>
+                <FieldLabel>Email *</FieldLabel>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
                   <input
@@ -302,7 +319,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <FieldLabel>Password</FieldLabel>
+                <FieldLabel>Password *</FieldLabel>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
                   <input

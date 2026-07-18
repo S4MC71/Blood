@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { getCooldownStatus } from '@/utils/donationUtils'
-import { Calendar, Plus, Trash2, Loader2, Hospital, History, CheckCircle2 } from 'lucide-react'
+import { Calendar, Plus, Trash2, Loader2, Hospital, History, CheckCircle2, AlertCircle, X } from 'lucide-react'
 
 export interface DonationRecord {
   id: string
@@ -36,12 +36,22 @@ export default function DonationHistorySection({
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
+  // Confirmation modal states
+  const [showAddConfirm, setShowAddConfirm] = useState(false)
+  const [recordToDelete, setRecordToDelete] = useState<DonationRecord | null>(null)
+
   const todayStr = new Date().toISOString().split('T')[0]
 
-  const handleAdd = async (e: React.FormEvent) => {
+  // Form submit opens confirmation modal
+  const handleOpenAddConfirm = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newDate) return
+    setShowAddConfirm(true)
+  }
 
+  // Actual insert executed after user confirms in modal
+  const executeAddDonation = async () => {
+    setShowAddConfirm(false)
     setAdding(true)
     setMsg(null)
 
@@ -80,7 +90,7 @@ export default function DonationHistorySection({
       onHistoryChange(updated)
       setNewDate('')
       setNewNote('')
-      setMsg({ type: 'success', text: 'Donation history record saved to Supabase!' })
+      setMsg({ type: 'success', text: 'New blood donation logged successfully!' })
     } catch (err: any) {
       setMsg({ type: 'error', text: err.message || 'Failed to save donation record in Supabase.' })
     } finally {
@@ -88,7 +98,11 @@ export default function DonationHistorySection({
     }
   }
 
-  const handleDelete = async (id: string) => {
+  // Actual delete executed after user confirms in delete modal
+  const executeDeleteDonation = async () => {
+    if (!recordToDelete) return
+    const id = recordToDelete.id
+    setRecordToDelete(null)
     setDeletingId(id)
     setMsg(null)
 
@@ -113,7 +127,7 @@ export default function DonationHistorySection({
 
       setHistory(updated)
       onHistoryChange(updated)
-      setMsg({ type: 'success', text: 'Donation record removed from Supabase.' })
+      setMsg({ type: 'success', text: 'Donation record removed.' })
     } catch (err: any) {
       setMsg({ type: 'error', text: 'Failed to remove record.' })
     } finally {
@@ -122,22 +136,22 @@ export default function DonationHistorySection({
   }
 
   return (
-    <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-sm p-5 space-y-4">
+    <div className="rounded-3xl border border-zinc-200/60 bg-white/60 dark:border-zinc-800/60 dark:bg-zinc-900/60 backdrop-blur-xl shadow-sm p-4 sm:p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400">
             <History className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
+            <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
               Donation History Log & Timeline
             </h3>
-            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              Saved dates of blood donations on Roktodan.online
+            <p className="text-[11px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              Logged dates of blood donations made through Roktodan.online
             </p>
           </div>
         </div>
-        <span className="rounded-full bg-red-100 dark:bg-red-900/30 px-2.5 py-0.5 text-xs font-extrabold text-red-600 dark:text-red-400">
+        <span className="rounded-full bg-red-100 dark:bg-red-900/30 px-2.5 py-0.5 text-[11px] sm:text-xs font-extrabold text-red-600 dark:text-red-400">
           {history.length} {history.length === 1 ? 'record' : 'records'}
         </span>
       </div>
@@ -156,7 +170,7 @@ export default function DonationHistorySection({
       )}
 
       {/* Add New Record Form */}
-      <form onSubmit={handleAdd} className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 dark:border-zinc-800 dark:bg-zinc-800/40 p-4 space-y-3">
+      <form onSubmit={handleOpenAddConfirm} className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 dark:border-zinc-800 dark:bg-zinc-800/40 p-3.5 sm:p-4 space-y-3">
         <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
           + Log New Donation Date
         </p>
@@ -213,7 +227,7 @@ export default function DonationHistorySection({
       {/* History Records List */}
       {history.length === 0 ? (
         <div className="py-6 text-center text-xs font-medium text-zinc-400 dark:text-zinc-500 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
-          No donation records logged yet. Use the form above to record your blood donation date!
+          No platform donation logs recorded yet. Use the form above to record your latest donation date!
         </div>
       ) : (
         <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
@@ -238,7 +252,7 @@ export default function DonationHistorySection({
                       {formattedDate}
                     </div>
                     {record.note ? (
-                      <div className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate max-w-[200px] sm:max-w-xs">
+                      <div className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate max-w-[150px] xs:max-w-[200px] sm:max-w-xs">
                         {record.note}
                       </div>
                     ) : (
@@ -250,9 +264,9 @@ export default function DonationHistorySection({
                 <button
                   type="button"
                   disabled={deletingId === record.id}
-                  onClick={() => handleDelete(record.id)}
+                  onClick={() => setRecordToDelete(record)}
                   title="Remove entry"
-                  className="rounded-lg p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 transition-colors"
+                  className="rounded-lg p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 transition-colors cursor-pointer"
                 >
                   {deletingId === record.id ? (
                     <Loader2 className="h-4 w-4 animate-spin text-red-600" />
@@ -263,6 +277,96 @@ export default function DonationHistorySection({
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Confirmation Modal for Adding Donation Log */}
+      {showAddConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+              <h3 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-red-600" />
+                Confirm New Donation Log
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowAddConfirm(false)}
+                className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300">
+              Are you sure you want to log a new blood donation on{' '}
+              <strong className="text-red-600 dark:text-red-400 font-bold">{newDate}</strong>
+              {newNote ? ` at "${newNote}"` : ''}?
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setShowAddConfirm(false)}
+                className="rounded-xl px-4 py-2.5 text-xs font-bold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={executeAddDonation}
+                className="rounded-xl bg-gradient-to-r from-red-600 to-rose-500 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all"
+              >
+                Confirm & Log
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Deleting Donation Log */}
+      {recordToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+              <h3 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-red-600" />
+                Confirm Deletion
+              </h3>
+              <button
+                type="button"
+                onClick={() => setRecordToDelete(null)}
+                className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300">
+              Are you sure you want to delete the donation record for{' '}
+              <strong className="text-red-600 dark:text-red-400 font-bold">
+                {recordToDelete.donation_date}
+              </strong>
+              ?
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setRecordToDelete(null)}
+                className="rounded-xl px-4 py-2.5 text-xs font-bold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={executeDeleteDonation}
+                className="rounded-xl bg-red-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-red-700 transition-all"
+              >
+                Delete Record
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
