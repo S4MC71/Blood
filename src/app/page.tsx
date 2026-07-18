@@ -95,7 +95,7 @@ export default async function Home({ searchParams }: PageProps) {
 
     let query = supabase
       .from('profiles')
-      .select('*')
+      .select('*, donation_history(count)')
       .order('is_available', { ascending: false })
       .order('created_at', { ascending: false })
 
@@ -119,14 +119,7 @@ export default async function Home({ searchParams }: PageProps) {
           <div className="absolute -top-20 -right-20 h-56 w-56 rounded-full bg-red-400/15 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-rose-400/15 blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 flex items-center gap-2 mb-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-tr from-red-600 to-rose-500 shadow-md shadow-red-500/30">
-              <Heart className="h-3.5 w-3.5 fill-white text-white" />
-            </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-red-600 dark:text-red-400">
-              Roktodan.online
-            </span>
-          </div>
+
 
           <div className="relative z-10">
             <h1 className="text-[1.7rem] leading-tight font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-4xl lg:text-5xl">
@@ -200,6 +193,8 @@ export default async function Home({ searchParams }: PageProps) {
             {donors.map((donor) => {
               const cooldown = getCooldownStatus(donor.last_donation_date, donor.gender)
               const canCall = donor.is_available && cooldown.isEligible
+              const platformDonations = donor.donation_history?.[0]?.count || 0
+              const totalDonations = (donor.initial_donation_count || 0) + platformDonations
 
               return (
                 <div
@@ -213,10 +208,10 @@ export default async function Home({ searchParams }: PageProps) {
                         <h3 className="text-sm font-bold text-zinc-900 dark:text-white leading-snug line-clamp-1">
                           {donor.full_name}
                         </h3>
-                        {donor.initial_donation_count > 0 && (
-                          <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/40 px-1.5 py-0.5 text-[10px] font-extrabold text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 whitespace-nowrap">
+                        {totalDonations > 0 && (
+                          <span title={`Donated ${totalDonations} times`} className="shrink-0 inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/40 px-2 py-0.5 text-[10px] font-extrabold text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 whitespace-nowrap">
                             <Award className="h-2.5 w-2.5" />
-                            {donor.initial_donation_count}×
+                            {totalDonations} Donations
                           </span>
                         )}
                       </div>
