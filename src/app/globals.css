@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fff5f5;
+  --foreground: #1e1b4b;
 }
 
 @theme inline {
@@ -14,13 +14,62 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f0a14;
+    --foreground: #f8fafc;
   }
 }
 
 body {
   background: var(--background);
+  background-image: radial-gradient(circle at top right, rgba(225, 29, 72, 0.05), transparent 50%),
+                    radial-gradient(circle at bottom left, rgba(225, 29, 72, 0.05), transparent 50%);
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-image: radial-gradient(circle at top right, rgba(225, 29, 72, 0.1), transparent 50%),
+                      radial-gradient(circle at bottom left, rgba(225, 29, 72, 0.1), transparent 50%);
+  }
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Touch-friendly tap targets on mobile */
+@media (max-width: 640px) {
+  select,
+  input,
+  button,
+  a {
+    min-height: 44px;
+  }
+}
+
+/* Input autofill & contrast fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--foreground) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+option {
+  background-color: #ffffff;
+  color: #18181b;
+}
+
+@media (prefers-color-scheme: dark) {
+  option {
+    background-color: #27272a;
+    color: #ffffff;
+  }
+}
+
