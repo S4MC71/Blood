@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import DashboardForm from '@/components/DashboardForm'
-import { Heart, Mail, ShieldAlert } from 'lucide-react'
+import { Mail, ShieldAlert } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,6 +38,12 @@ export default async function DashboardPage() {
     )
   }
 
+  const { data: historyData } = await supabase
+    .from('donation_history')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('donation_date', { ascending: false })
+
   return (
     <div className="flex-1 bg-transparent pb-10">
       {/* Dashboard Header Banner */}
@@ -49,7 +55,7 @@ export default async function DashboardPage() {
                 Donor Dashboard
               </p>
               <h1 className="text-2xl font-extrabold leading-tight drop-shadow-sm">
-                Welcome, {profile.full_name.split(' ')[0]}!
+                Welcome, {profile.full_name ? profile.full_name.split(' ')[0] : 'Donor'}!
               </h1>
               <p className="text-sm text-red-50 mt-1 flex items-center gap-1.5 drop-shadow-sm">
                 <Mail className="h-3.5 w-3.5" />
@@ -59,7 +65,9 @@ export default async function DashboardPage() {
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-inner border border-white/10">
               <div className="text-center">
                 <div className="text-[10px] font-bold text-red-100 uppercase">Group</div>
-                <div className="text-2xl font-extrabold text-white drop-shadow-md">{profile.blood_group}</div>
+                <div className="text-2xl font-extrabold text-white drop-shadow-md">
+                  {profile.blood_group || 'N/A'}
+                </div>
               </div>
             </div>
           </div>
@@ -68,7 +76,7 @@ export default async function DashboardPage() {
 
       {/* Form Section */}
       <div className="mx-auto max-w-lg px-4 pt-5">
-        <DashboardForm initialProfile={profile} />
+        <DashboardForm initialProfile={profile} initialHistory={historyData || []} />
       </div>
     </div>
   )

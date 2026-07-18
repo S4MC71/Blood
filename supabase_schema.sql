@@ -9,9 +9,15 @@ create table public.profiles (
   upazila text not null,
   last_donation_date date,
   is_available boolean default true not null,
+  initial_donation_count integer default 0 not null,
+  gender text default 'male' not null,
   created_at timestamptz default now() not null,
   updated_at timestamptz default now() not null
 );
+
+-- Migration commands for existing profiles table:
+-- alter table public.profiles add column if not exists initial_donation_count integer default 0 not null;
+-- alter table public.profiles add column if not exists gender text default 'male' not null;
 
 -- Enable Row Level Security (RLS)
 alter table public.profiles enable row level security;
@@ -36,7 +42,7 @@ create policy "Users can insert their own profile"
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, full_name, blood_group, phone, division, district, upazila, last_donation_date, is_available)
+  insert into public.profiles (id, full_name, blood_group, phone, division, district, upazila, last_donation_date, is_available, initial_donation_count, gender)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', ''),
@@ -46,7 +52,9 @@ begin
     coalesce(new.raw_user_meta_data->>'district', ''),
     coalesce(new.raw_user_meta_data->>'upazila', ''),
     null,
-    true
+    true,
+    0,
+    'male'
   );
   return new;
 end;
@@ -56,3 +64,29 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Create donation_history table
+create table public.donation_history (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  donation_date date not null,
+  note text,
+  created_at timestamptz default now() not null
+);
+
+-- Enable RLS on donation_history
+alter table public.donation_history enable row level security;
+
+-- Policies for donation_history
+create policy "Donation history viewable by everyone"
+  on public.donation_history for select
+  using (true);
+
+create policy "Users can insert their own donation history"
+  on public.donation_history for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can delete their own donation history"
+  on public.donation_history for delete
+  using (auth.uid() = user_id);
+
