@@ -144,10 +144,10 @@ export default function DonationHistorySection({
           </div>
           <div>
             <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
-              Donation History Log & Timeline
+              Your Donation History
             </h3>
             <p className="text-[11px] sm:text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              Logged dates of blood donations made through Roktodan.online
+              Keep a record of all your blood donations here.
             </p>
           </div>
         </div>
@@ -171,8 +171,8 @@ export default function DonationHistorySection({
 
       {/* Add New Record Form */}
       <form onSubmit={handleOpenAddConfirm} className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 dark:border-zinc-800 dark:bg-zinc-800/40 p-3.5 sm:p-4 space-y-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-          + Log New Donation Date
+        <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 border-b border-zinc-200/50 dark:border-zinc-700/50 pb-2 mb-3">
+          <Plus className="h-3.5 w-3.5" /> Log a New Donation
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -195,13 +195,13 @@ export default function DonationHistorySection({
 
           <div>
             <label className="block text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
-              Hospital / Location / Note
+              Hospital / Location (Optional)
             </label>
             <div className="relative">
               <Hospital className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
               <input
                 type="text"
-                placeholder="e.g. Dhaka Medical College Hospital"
+                placeholder="e.g. Dhaka Medical College"
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
                 className={`${inputClass} pl-9`}
@@ -224,10 +224,10 @@ export default function DonationHistorySection({
         </button>
       </form>
 
-      {/* History Records List */}
       {history.length === 0 ? (
-        <div className="py-6 text-center text-xs font-medium text-zinc-400 dark:text-zinc-500 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
-          No platform donation logs recorded yet. Use the form above to record your latest donation date!
+        <div className="py-8 px-4 text-center text-sm font-medium text-zinc-500 dark:text-zinc-400 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-2xl bg-zinc-50/50 dark:bg-zinc-800/30">
+          You haven't logged any donations on the platform yet.<br/>
+          <span className="text-xs mt-1 block opacity-70">Use the form above to add your recent donations.</span>
         </div>
       ) : (
         <div className="space-y-2 max-h-60 overflow-y-auto pr-1">

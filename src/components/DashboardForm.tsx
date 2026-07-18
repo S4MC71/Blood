@@ -326,10 +326,10 @@ export default function DashboardForm({ initialProfile, initialHistory }: Dashbo
           {/* Medical cooldown banner */}
           {!cooldownStatus.isEligible && (
             <AlertBanner type="warning">
-              <strong>Medical Restriction Active.</strong> Your last donation was on{' '}
-              <strong>{lastDonationDate}</strong>. {cooldownStatus.daysRemaining} days remain before
-              you are eligible again (on <strong>{cooldownStatus.nextEligibleDateStr}</strong>).
-              For your health, your availability is locked off until then.
+              <strong>Recovery Period Active.</strong> Your last donation was on{' '}
+              <strong>{lastDonationDate}</strong>. For your safety, you need to wait{' '}
+              <strong>{cooldownStatus.daysRemaining} more days</strong> before your next donation (eligible on {cooldownStatus.nextEligibleDateStr}). 
+              During this time, your profile is hidden from searches.
             </AlertBanner>
           )}
 
@@ -338,15 +338,15 @@ export default function DashboardForm({ initialProfile, initialHistory }: Dashbo
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                  Donation Status
+                  Profile Visibility (Searchable)
                   {togglingAvailability && <Loader2 className="h-3.5 w-3.5 animate-spin text-red-500" />}
                 </p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 max-w-sm">
                   {!cooldownStatus.isEligible
-                    ? `Locked — medical cooldown (${cooldownStatus.daysRemaining} days remaining)`
+                    ? `Hidden during your recovery period (${cooldownStatus.daysRemaining} days left).`
                     : effectiveIsAvailable
-                    ? 'You are visible to people searching for donors'
-                    : 'You are hidden from donor searches'}
+                    ? 'Your profile is visible. People in need can find and contact you.'
+                    : 'Your profile is hidden. Turn this on to let people find you.'}
                 </p>
               </div>
               <button
@@ -375,9 +375,9 @@ export default function DashboardForm({ initialProfile, initialHistory }: Dashbo
                 <Heart className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-sm font-bold text-zinc-900 dark:text-white">Offline Baseline Count</p>
+                <p className="text-sm font-bold text-zinc-900 dark:text-white">Past Offline Donations</p>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Donations before joining this platform (not counted in site total)
+                  How many times did you donate blood before joining this site?
                 </p>
               </div>
             </div>
@@ -400,8 +400,8 @@ export default function DashboardForm({ initialProfile, initialHistory }: Dashbo
                 Set Count
               </button>
             </div>
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              Current: <strong className="text-zinc-600 dark:text-zinc-300">{initialDonationCount} times</strong>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 pt-1">
+              Currently saved: <strong className="text-zinc-600 dark:text-zinc-300">{initialDonationCount} donations</strong>
             </p>
           </div>
 
