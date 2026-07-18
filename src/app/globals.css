@@ -28,6 +28,8 @@ body {
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent horizontal overflow on mobile */
+  overflow-x: hidden;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,15 +42,28 @@ body {
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+  /* Prevent layout shift from scrollbar */
+  scrollbar-gutter: stable;
 }
 
-/* Touch-friendly tap targets on mobile */
+/* Touch-friendly tap targets on mobile — only for interactive elements, not all anchors */
 @media (max-width: 640px) {
-  select,
-  input,
   button,
-  a {
+  input[type="submit"],
+  input[type="button"],
+  [role="button"] {
     min-height: 44px;
+  }
+  /* Ensure selects and inputs are comfortably tappable */
+  select,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="number"] {
+    min-height: 44px;
+    font-size: 16px; /* prevent iOS zoom on focus */
   }
 }
 
@@ -73,3 +88,34 @@ option {
   }
 }
 
+/* Loading shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Page transition fade */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Pulse dot for live status */
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.pulse-dot {
+  animation: pulseDot 2s ease-in-out infinite;
+}

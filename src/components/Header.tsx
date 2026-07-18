@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Heart, User, LogOut, Menu, X, Search } from 'lucide-react'
+import { Heart, User, LogOut, Menu, X, Search, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 interface HeaderProps {
@@ -15,6 +15,7 @@ export default function Header({ userEmail: initialEmail }: HeaderProps) {
   const supabase = createClient()
   const [email, setEmail] = useState<string | null | undefined>(initialEmail)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
 
   useEffect(() => {
     const {
@@ -32,6 +33,7 @@ export default function Header({ userEmail: initialEmail }: HeaderProps) {
 
   const handleLogout = async () => {
     setMobileMenuOpen(false)
+    setLoggingOut(true)
     await supabase.auth.signOut()
     router.push('/')
     router.refresh()
@@ -75,10 +77,11 @@ export default function Header({ userEmail: initialEmail }: HeaderProps) {
               </Link>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white transition-all cursor-pointer"
+                disabled={loggingOut}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white transition-all cursor-pointer disabled:opacity-60"
               >
-                <LogOut className="h-3.5 w-3.5" />
-                Logout
+                {loggingOut ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LogOut className="h-3.5 w-3.5" />}
+                {loggingOut ? 'Logging out…' : 'Logout'}
               </button>
             </>
           ) : (
@@ -154,10 +157,11 @@ export default function Header({ userEmail: initialEmail }: HeaderProps) {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-base font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20 cursor-pointer text-left w-full"
+                  disabled={loggingOut}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-base font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20 cursor-pointer text-left w-full disabled:opacity-60"
                 >
-                  <LogOut className="h-4 w-4" />
-                  Logout
+                  {loggingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+                  {loggingOut ? 'Logging out…' : 'Logout'}
                 </button>
               </>
             ) : (
