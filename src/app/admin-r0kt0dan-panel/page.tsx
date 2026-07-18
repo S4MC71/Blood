@@ -20,6 +20,7 @@ import {
   MapPin,
   Droplets,
   Calendar,
+  Key,
 } from 'lucide-react'
 
 interface Profile {
@@ -63,6 +64,11 @@ export default function AdminPanelPage() {
 
   // Search
   const [search, setSearch] = useState('')
+
+  // Password Reset
+  const [passwordResetProfile, setPasswordResetProfile] = useState<Profile | null>(null)
+  const [newPassword, setNewPassword] = useState('')
+  const [resettingPassword, setResettingPassword] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -142,6 +148,41 @@ export default function AdminPanelPage() {
       setErrorMsg('Delete failed: ' + err.message)
     } finally {
       setDeletingId(null)
+    }
+  }
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!passwordResetProfile || newPassword.length < 6) return
+    
+    setResettingPassword(true)
+    setErrorMsg('')
+    setSuccessMsg('')
+
+    try {
+      const res = await fetch('/api/admin/update-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-secret': password,
+        },
+        body: JSON.stringify({ userId: passwordResetProfile.id, newPassword }),
+      })
+
+      const result = await res.json()
+
+      if (!res.ok) {
+        throw new Error(result.error || 'Password update failed')
+      }
+
+      setSuccessMsg(`Password for "${passwordResetProfile.full_name}" has been updated.`)
+      setPasswordResetProfile(null)
+      setNewPassword('')
+      setTimeout(() => setSuccessMsg(''), 5000)
+    } catch (err: any) {
+      setErrorMsg('Password update failed: ' + err.message)
+    } finally {
+      setResettingPassword(false)
     }
   }
 
@@ -359,19 +400,28 @@ export default function AdminPanelPage() {
                           </div>
                         </div>
 
-                        {/* Delete button */}
-                        <button
-                          onClick={() => setDeleteConfirm({ profile })}
-                          disabled={isDeleting}
-                          className="shrink-0 flex items-center gap-1.5 rounded-lg border border-red-900/40 bg-red-950/30 px-2.5 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-950/60 hover:border-red-700 transition-all cursor-pointer disabled:opacity-50"
-                        >
-                          {isDeleting ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-3.5 w-3.5" />
-                          )}
-                          {isDeleting ? 'Deleting…' : 'Delete'}
-                        </button>
+                        {/* Action buttons */}
+                        <div className="flex flex-col sm:flex-row items-center gap-2">
+                          <button
+                            onClick={() => setPasswordResetProfile(profile)}
+                            className="shrink-0 flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg border border-blue-900/40 bg-blue-950/30 px-2.5 py-1.5 text-xs font-semibold text-blue-400 hover:bg-blue-950/60 hover:border-blue-700 transition-all cursor-pointer"
+                          >
+                            <Key className="h-3.5 w-3.5" />
+                            Password
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirm({ profile })}
+                            disabled={isDeleting}
+                            className="shrink-0 flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-lg border border-red-900/40 bg-red-950/30 px-2.5 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-950/60 hover:border-red-700 transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            {isDeleting ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-3.5 w-3.5" />
+                            )}
+                            {isDeleting ? 'Deleting…' : 'Delete'}
+                          </button>
+                        </div>
                       </div>
 
                       {/* Meta badges */}
@@ -459,6 +509,90 @@ export default function AdminPanelPage() {
                 Delete Permanently
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Password Reset Modal ── */}
+      {passwordResetProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl border border-zinc-700 bg-zinc-900 shadow-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-950/60 border border-blue-900/40">
+                  <Key className="h-5 w-5 text-blue-500" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Update Password</h3>
+                  <p className="text-xs text-zinc-400">Set a new password for this user</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setPasswordResetProfile(null)
+                  setNewPassword('')
+                }}
+                className="rounded-full p-1.5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300 cursor-pointer transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-zinc-700 bg-zinc-800 p-3.5">
+              <p className="text-sm font-bold text-white">{passwordResetProfile.full_name}</p>
+              <p className="text-xs text-zinc-400">{passwordResetProfile.phone}</p>
+            </div>
+
+            <form onSubmit={handlePasswordReset} className="space-y-4 pt-2">
+              <div>
+                <label className="block text-sm font-semibold text-zinc-300 mb-1.5">
+                  New Password (min 6 characters)
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    className="block w-full h-12 rounded-xl border border-zinc-700 bg-zinc-800/80 px-4 pl-10 pr-12 text-sm font-medium text-white placeholder:text-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-900/30 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPasswordResetProfile(null)
+                    setNewPassword('')
+                  }}
+                  className="flex-1 h-11 rounded-xl border border-zinc-700 bg-zinc-800 text-sm font-semibold text-zinc-300 hover:bg-zinc-700 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={resettingPassword || newPassword.length < 6}
+                  className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-blue-700 hover:bg-blue-600 text-sm font-bold text-white transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
+                >
+                  {resettingPassword ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Updating…</>
+                  ) : (
+                    'Update Password'
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
