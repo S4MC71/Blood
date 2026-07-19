@@ -49,8 +49,8 @@ export default function Header({ userEmail: initialEmail }: HeaderProps) {
           className="flex items-center gap-2 group"
           onClick={() => setMobileMenuOpen(false)}
         >
-          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg shadow-sm transition-transform group-hover:scale-105">
-            <Image src="/logo.png" alt="Roktodan Logo" fill className="object-cover" />
+          <div className="relative h-8 w-8 sm:h-10 sm:w-10 shrink-0 transition-transform group-hover:scale-105 flex items-center justify-center">
+            <Image src="/logo.png" alt="Roktodan Logo" fill className="object-contain drop-shadow-sm scale-110" />
           </div>
           <span className="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">
             Roktodan<span className="text-red-500">.online</span>
