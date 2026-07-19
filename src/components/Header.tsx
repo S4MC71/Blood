@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Heart, User, LogOut, Menu, X, Search, Loader2 } from 'lucide-react'
@@ -48,8 +49,8 @@ export default function Header({ userEmail: initialEmail }: HeaderProps) {
           className="flex items-center gap-2 group"
           onClick={() => setMobileMenuOpen(false)}
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-red-600 to-rose-500 text-white shadow-sm transition-transform group-hover:scale-105">
-            <Heart className="h-4 w-4 fill-current" />
+          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg shadow-sm transition-transform group-hover:scale-105">
+            <Image src="/logo.png" alt="Roktodan Logo" fill className="object-cover" />
           </div>
           <span className="text-lg font-extrabold tracking-tight text-zinc-900 dark:text-white">
             Roktodan<span className="text-red-500">.online</span>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
 import { Heart, Mail, Lock, Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react'
 
@@ -43,11 +44,11 @@ export default function LoginPage() {
     <div className="flex-1 flex flex-col bg-transparent">
       {/* Logo pill */}
       <div className="flex items-center justify-center pt-8 pb-4">
-        <div className="flex items-center gap-2 rounded-full border border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-950/20 px-4 py-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-sm">
-            <Heart className="h-3.5 w-3.5 fill-current" />
+        <div className="flex items-center gap-2 rounded-full border border-red-200 bg-white/50 dark:border-zinc-800/60 dark:bg-zinc-900/50 px-4 py-2 shadow-sm backdrop-blur-md">
+          <div className="relative h-7 w-7 overflow-hidden rounded-full shadow-sm">
+            <Image src="/logo.png" alt="Roktodan Logo" fill className="object-cover" />
           </div>
-          <span className="text-sm font-bold text-red-700 dark:text-red-400">Roktodan.online</span>
+          <span className="text-sm font-extrabold tracking-tight text-zinc-900 dark:text-white">Roktodan<span className="text-red-500">.online</span></span>
         </div>
       </div>
 
